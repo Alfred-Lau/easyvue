@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vuejs</title>
+    <style>
+    #model span {
+        display: block;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        {{ msg }}
+        <div v-if="condition">say yes</div>
+        <!-- v-else不需要等号赋值 -->
+        <div v-else>say no</div>
+    </div>
+    <div id="for">
+        <p v-for="p of ps">
+            <!-- 特殊变量 $index -->
+            {{$index}} ---- {{p}}
+        </p>
+    </div>
+    <div id="template">
+        <template v-for="p of ps">
+            <h3>
+    			{{$index}}
+    		</h3>
+            <p>
+                {{p.message}}
+            </p>
+        </template>
+    </div>
+    <div id="on">
+        <input type="button" v-on:click="greet" value="nice to meet you!">
+    </div>
+    <!-- 在内联语句处理器中访问原生 DOM 事件。可以用特殊变量 $event 把它传入方法： -->
+    <div id="event">
+        <input type="button" v-on:click="greet('say hi', $event)" value="event">
+    </div>
+    <!-- 表单元素 -->
+    <div id="model">
+        <span>Message is {{message}}</span>
+        <input type="text" placeholder="edit me" v-model="message">
+        <textarea name="multtext" id="multtext" cols="30" rows="10" v-model="message" placeholder="multiple text"></textarea>
+        <!-- checkbox:复选 -->
+        <input type="checkbox" id="Jack" value="JackName" v-model="checkedNames">
+        <label for="JackName">Jack</label>
+        <input type="checkbox" id="Mike" value="MikeName" v-model="checkedNames">
+        <label for="MikeName">Mike</label>
+        <input type="checkbox" id="John" value="JohnName" v-model="checkedNames">
+        <label for="JohnName">John</label>
+        <p>Checked Names: {{checkedNames|json}}</p>
+        <!-- radio: 单选 -->
+        <input type="radio" id="one" value="oneName" v-model="radioPicked">
+        <label for="oneName">One</label>
+        <input type="radio" id="two" value="twoName" v-model="radioPicked">
+        <label for="twoName">Two</label>
+        <p>Picked is : {{radioPicked}}</p>
+        <!-- select:下拉框 (单选；多选：绑定到一个数组)-->
+        <select name="select" id="select" v-model="selected">
+            <option value="item1" selected>A</option>
+            <option value="item2">B</option>
+            <option value="item3">C</option>
+        </select>
+        <p>Selected Item :{{selected}}</p>
+        <!-- 多选的时候需要加上multiple -->
+        <select name="multselect" id="multselect" v-model="selectItems" multiple>
+            <option value="item1">A</option>
+            <option value="item2">B</option>
+            <option value="item3">C</option>
+        </select>
+        <p>Selected Items :{{selectItems|json}}</p>
+        <!-- select动态选项(不像上面那样写死在前端代码里面，而是通过后端获取的数据)：v-for -->
+        <select name="dynamicSelect" id="dynamic" v-model="dselected">
+            <option v-for="option of options" v-bind:value="option.value">
+                {{option.text}}
+            </option>
+        </select>
+        <p>The Dynamic Selected Item is: {{dselected}}</p>
+        <!-- 表单元素的参数特性 :
+
+        lazy:
+        在默认情况下，v-model 在input 事件中同步输入框值与数据，可以添加一个特性 lazy，从而改到在 change 事件中同步：
+        number:
+        如果想自动将用户的输入转为 Number 类型（如果原值的转换结果为 NaN 则返回原值），可以添加一个特性 number：
+	debounce :
+	设置一个最小的延时，在每次敲击之后延时同步输入框的值与数据。如果每次更新都要进行高耗操作（例如在输入提示中 Ajax 请求），它较为有用。
+	注意 debounce 参数不会延迟 input 事件：它延迟“写入”底层数据。因此在使用 debounce 时应当用 vm.$watch() 响应数据的变化。若想延迟 DOM 事件，应当使用 debounce 过滤器。
+        <input type="text" placeholder="edit me" v-model="message" debounce="3000">
+
+        -->
+        <input type="text" v-model="pmsg" lazy>
+        <span>{{pmsg}}</span>
+        <input v-model="age" number>
+    </div>
+    <div id="example">
+        <container></container>
+    </div>
+    <!-- 注意：这个一定要写在靠上的位置！！！ -->
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script>
+
+    // 创建自己的组件
+    var MyComponent = Vue.extend({
+        template: '<div>A custom component!</div>'
+    })
+
+    // 全局注册
+    Vue.component('container', MyComponent)
+
+    // 创建根实例
+    new Vue({
+        el: '#example'
+    })
+
+
+    var vmmodel = new Vue({
+        el: "#model",
+        data: {
+            pmsg: "",
+            // 此处匹配的是value属性，不是id属性
+            checkedNames: ['JackName'],
+            radioPicked: ['twoName'],
+            selectItems: ['item2', 'item3'],
+            message: "",
+            dselected: 'C',
+            options: [{
+                text: 'One',
+                value: 'A'
+            }, {
+                text: 'Two',
+                value: 'B'
+            }, {
+                text: 'Three',
+                value: 'C'
+            }]
+        }
+    })
+    var vmevent = new Vue({
+        el: "#event",
+        methods: {
+            greet: function(msg, event) {
+                alert(msg);
+                event.preventDefault();
+            }
+        }
+    })
+    var vmon = new Vue({
+        el: "#on",
+        data: {
+            msg: 'alf'
+        },
+        methods: {
+            greet: function(e) {
+                alert('hello, ' + this.msg);
+                // 这个用法很常见
+                alert(e.target.tagName)
+            }
+        }
+    })
+    var vmtemplate = new Vue({
+        el: "#template",
+        data: {
+            ps: [{
+                message: '测试'
+            }, {
+                message: '模板'
+            }]
+        }
+    })
+
+    var vmfor = new Vue({
+        el: "#for",
+        data: {
+            ps: [
+                'hello',
+                'for'
+            ]
+        }
+    })
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "Hello,Vuejs.",
+            condition: false,
+        }
+    })
+    </script>
+</body>
+
+</html>
