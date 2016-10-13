@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ToDoList</title>
+</head>
+
+<body>
+    <div id="todoList">
+        <simple-counter></simple-counter>
+        <simple-counter></simple-counter>
+        <simple-counter></simple-counter>
+        <button @click="count++">{{count}}</button>
+        <button @click="greeting"></button>
+        <input type="text" v-model="newTodoText" @keyup.enter="addNewTodo" placeholder="add a todo">
+        <ul>
+            <li is="todo-list" v-for="(todo, index) of todos" :title="todo" @remove="todos.splice(index, 1)">
+            </li>
+        </ul>
+    </div>
+    <script src="../node_modules/vue/dist/vue.js"></script>
+    <script>
+    Vue.component('simple-counter', {
+        template: '<button @click="count++">{{count}}</button>',
+        data: function() {
+        	// 注意,对象只能定义在组件实例里面,否则会共享数据!!!
+            var data = {
+                count: 0
+            }
+            return data
+        }
+    })
+    Vue.component('todo-list', {
+        props: ['title'],
+        template: '\
+    		<li>\
+    			{{title}}\
+    			<button @click="$emit(\'remove\')">X</button>\
+    		</li>\
+    		',
+    });
+
+    new Vue({
+        el: '#todoList',
+        data: {
+            name: 'Vue.js',
+            count: 0,
+            newTodoText: '',
+            todos: [
+                'do the dishes',
+                'make dinner',
+                'pass the test',
+            ]
+        },
+        methods: {
+            greeting: function(e) {
+                alert('Hello,' + this.name + '!')
+                alert(e.target.tagName)
+            },
+            addNewTodo: function() {
+                // 1.注意this不能少; 2.注意不能顾头不顾腚
+                this.todos.push(this.newTodoText)
+                this.newTodoText = ''
+            }
+        },
+    });
+    </script>
+</body>
+
+</html>
